@@ -45,19 +45,19 @@ jobs:
         kubectl apply -R -f ./k8s
         kubectl wait pods --all --for condition=Ready --timeout=90s
 
-    - name: Port Forward to webservice
-      run: |
-        kubectl port-forward service/webapp-service 8080:80 --address 0.0.0.0 &
-        sleep 20
-
-    - name: Test containers functionality
-      uses: cypress-io/github-action@v6
+    - name: Run Port Forward and Cypress Tests
       env:
         CYPRESS_BASE_URL: http://localhost:8080
-      with:
-        working-directory: ./.github/tests
-        wait-on: 'http://localhost:8080'
-        wait-on-timeout: 120
+      run: |
+
+        kubectl port-forward service/webapp-service 8080:80 --address 0.0.0.0 &
+
+        cd ./.github/tests
+        npm install
+
+        npx wait-on http://localhost:8080 --timeout 60000
+
+        npx cypress run
     - name: Final Step
       env:
         GH_TOKEN: ${{ steps.generate-token.outputs.token }}
