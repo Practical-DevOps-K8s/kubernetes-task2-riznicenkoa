@@ -42,21 +42,20 @@ jobs:
     - name: Build and start containers for a services
       run: |
         kubectl apply -R -f ./k8s
-        kubectl wait pods --all --for condition=Ready --timeout=2m
-    - name: Build and start containers for a services
-      run: |
-        kubectl apply -R -f ./k8s
-        kubectl wait pods --all --for condition=Ready
+        kubectl wait pods --all --for condition=Ready --timeout=90s
+
     - name: Port Forward to webservice
       run: |
-        kubectl port-forward service/webapp-service 8080:80 &
-        sleep 5
+        kubectl port-forward service/webapp-service 8080:80 --address 0.0.0.0 &
+        sleep 20
+
     - name: Test containers functionality
       uses: cypress-io/github-action@v6
       env:
         CYPRESS_BASE_URL: http://localhost:8080
       with:
         working-directory: ./.github/tests
+
     - name: Final Step
       env:
         GH_TOKEN: ${{ steps.generate-token.outputs.token }}
