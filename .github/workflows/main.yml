@@ -56,7 +56,8 @@ jobs:
         CYPRESS_BASE_URL: http://localhost:8080
       with:
         working-directory: ./.github/tests
-
+        wait-on: 'http://localhost:8080'
+        wait-on-timeout: 120
     - name: Final Step
       env:
         GH_TOKEN: ${{ steps.generate-token.outputs.token }}
