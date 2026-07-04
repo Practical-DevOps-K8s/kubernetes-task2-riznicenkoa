@@ -39,25 +39,38 @@ jobs:
           postgres-password: ${{ secrets.POSTGRES_PASSWORD }}
           secret-key-base: ${{ secrets.SECRET_KEY_BASE }}
         EOF
-
     - name: Build and start containers for a services
       run: |
         kubectl apply -R -f ./k8s
-        kubectl wait pods --all --for condition=Ready --timeout=90s
+        # Даем подам 30 секунд просто прийти в себя
+        sleep 30
+
+    - name: Debug Kubernetes Status (Смотрим, живы ли поды)
+      run: |
+        echo "=== Статус всех подов ==="
+        kubectl get pods
+        echo "=== Описание пода веб-приложения ==="
+        kubectl describe pods -l app=webapp || kubectl get pods
+        echo "=== Логи веб-приложения ==="
+        kubectl logs -l app=webapp --tail=30 || echo "Не удалось получить логи"
 
     - name: Run Port Forward and Cypress Tests
       env:
         CYPRESS_BASE_URL: http://localhost:8080
       run: |
-
+        # Запускаем проброс портов
         kubectl port-forward service/webapp-service 8080:80 --address 0.0.0.0 &
-
+        
+        # Переходим к тестам
         cd ./.github/tests
         npm install
-
+        
+        # Ждем открытия порта
         npx wait-on http://localhost:8080 --timeout 60000
-
+        
+        # Запуск тестов
         npx cypress run
+
     - name: Final Step
       env:
         GH_TOKEN: ${{ steps.generate-token.outputs.token }}
