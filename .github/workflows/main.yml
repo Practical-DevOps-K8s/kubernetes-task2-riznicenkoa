@@ -29,15 +29,18 @@ jobs:
       run: kind load docker-image webapp:latest --name chart-testing
     - name: Create secret from GitHub Secrets
       run: |
+        PLAIN_PASSWORD=$(echo "${{ secrets.POSTGRES_PASSWORD }}" | base64 --decode)
+        PLAIN_KEY=$(echo "${{ secrets.SECRET_KEY_BASE }}" | base64 --decode)
+
         cat <<EOF | kubectl apply -f -
         apiVersion: v1
         kind: Secret
         metadata:
           name: postgres-secret
         type: Opaque
-        data:
-          postgres-password: ${{ secrets.POSTGRES_PASSWORD }}
-          secret-key-base: ${{ secrets.SECRET_KEY_BASE }}
+        stringData:
+          postgres-password: ${PLAIN_PASSWORD}
+          secret-key-base: ${PLAIN_KEY}
         EOF
     - name: Build and start containers for a services
       run: |
