@@ -43,7 +43,12 @@ jobs:
       run: |
         kubectl apply -R -f ./k8s
         kubectl wait pods --all --for condition=Ready --timeout=90s
-
+    - name: Check pod status and logs if crash
+      if: always()
+      run: |
+        kubectl get pods
+        kubectl get service webapp-service
+        kubectl logs deployment/webapp --tail=50
     - name: Port Forward to webservice
       run: |
         kubectl port-forward service/webapp-service 8080:80 --address 0.0.0.0 &
