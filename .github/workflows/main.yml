@@ -48,7 +48,9 @@ jobs:
         kubectl apply -R -f ./k8s
         kubectl wait pods --all --for condition=Ready
     - name: Port Forward to webservice
-      run: kubectl port-forward service/webapp-service 8080:80 &
+      run: |
+        kubectl port-forward service/webapp-service 8080:80 &
+        sleep 5
     - name: Test containers functionality
       uses: cypress-io/github-action@v6
       env:
