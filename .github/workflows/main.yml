@@ -39,6 +39,11 @@ jobs:
           postgres-password: ${{ secrets.POSTGRES_PASSWORD }}
           secret-key-base: ${{ secrets.SECRET_KEY_BASE }}
         EOF
+    - name: Debug Kubernetes Status
+      if: always()
+      run: |
+        echo "=== КРИТИЧЕСКАЯ ОШИБКА RAILS ==="
+        kubectl logs deployment/webapp -p --tail=50 || kubectl logs deployment/webapp --tail=50
     - name: Build and start containers for a services
       run: |
         kubectl apply -R -f ./k8s
