@@ -29,9 +29,6 @@ jobs:
       run: kind load docker-image webapp:latest --name chart-testing
     - name: Create secret from GitHub Secrets
       run: |
-        PLAIN_PASSWORD=$(echo "${{ secrets.POSTGRES_PASSWORD }}" | base64 --decode)
-        PLAIN_KEY=$(echo "${{ secrets.SECRET_KEY_BASE }}" | base64 --decode)
-
         cat <<EOF | kubectl apply -f -
         apiVersion: v1
         kind: Secret
@@ -39,19 +36,15 @@ jobs:
           name: postgres-secret
         type: Opaque
         stringData:
-          postgres-password: ${PLAIN_PASSWORD}
-          secret-key-base: ${PLAIN_KEY}
+          postgres-password: ${{ secrets.POSTGRES_PASSWORD }}
+          secret-key-base: ${{ secrets.SECRET_KEY_BASE }}
         EOF
+
     - name: Build and start containers for a services
       run: |
         kubectl apply -R -f ./k8s
         kubectl wait pods --all --for condition=Ready --timeout=90s
-    - name: Check pod status and logs if crash
-      if: always()
-      run: |
-        kubectl get pods
-        kubectl get service webapp-service
-        kubectl logs deployment/webapp --tail=50
+
     - name: Port Forward to webservice
       run: |
         kubectl port-forward service/webapp-service 8080:80 --address 0.0.0.0 &
