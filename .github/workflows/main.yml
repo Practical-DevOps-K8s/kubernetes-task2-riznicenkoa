@@ -44,6 +44,9 @@ jobs:
         kubectl apply -R -f ./k8s
         echo
         sleep 30
+    - name: Run Application Component Tests
+      run: |
+        kubectl run test-connection --rm -i --restart=Never --image=curlimages/curl -- http://webapp-service:80
 
     - name: Verify Final Kubernetes Status
       run: |
