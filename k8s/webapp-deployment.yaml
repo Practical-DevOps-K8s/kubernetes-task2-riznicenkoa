@@ -17,8 +17,8 @@ spec:
       containers:
       - name: webapp
         image: webapp:latest
-        imagePullPolicy: Never
-        command: ["/bin/sh", "-c", "bundle exec rails db:migrate && bundle exec rails server -b 0.0.0.0 -p 3000"]
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-c", "bundle exec rails db:create && bundle exec rails db:migrate && bundle exec rails server -b 0.0.0.0 -p 3000"]
         ports:
         - containerPort: 3000
         env:
