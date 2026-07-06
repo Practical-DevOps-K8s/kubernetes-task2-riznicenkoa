@@ -25,7 +25,7 @@ spec:
         - name: RAILS_ENV
           value: "production"
         - name: DATABASE_HOST
-          value: "postgres-0.postgres"
+          value: "10.244.0.8"
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
