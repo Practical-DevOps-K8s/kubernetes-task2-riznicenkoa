@@ -39,26 +39,20 @@ jobs:
           postgres-password: ${{ secrets.POSTGRES_PASSWORD }}
           secret-key-base: ${{ secrets.SECRET_KEY_BASE }}
         EOF
-    - name: Debug Kubernetes Status
-      if: always()
-      run: |
-        echo "=== КРИТИЧЕСКАЯ ОШИБКА RAILS ==="
-        kubectl logs deployment/webapp -p --tail=50 || kubectl logs deployment/webapp --tail=50
     - name: Build and start containers for a services
       run: |
         kubectl apply -R -f ./k8s
         # Даем подам 30 секунд просто прийти в себя
         sleep 30
 
-    - name: Debug Kubernetes Status (Смотрим, живы ли поды)
+    
+    - name: Debug Kubernetes Status
+      if: always()
       run: |
-        echo "=== Статус всех подов ==="
-        kubectl get pods
-        echo "=== Описание пода веб-приложения ==="
-        kubectl describe pods -l app=webapp || kubectl get pods
-        echo "=== Логи веб-приложения ==="
-        kubectl logs -l app=webapp --tail=30 || echo "Не удалось получить логи"
-
+        echo "=== СМОТРИМ ВСЕ РЕСУРСЫ В КЛАСТЕРЕ ==="
+        kubectl get all
+        echo "=== ЛОГИ ВЕБ-ПРИЛОЖЕНИЯ ==="
+        kubectl logs deployment/webapp --tail=50 || echo "Контейнер еще не запустился"
     - name: Run Port Forward and Cypress Tests
       env:
         CYPRESS_BASE_URL: http://localhost:8080
