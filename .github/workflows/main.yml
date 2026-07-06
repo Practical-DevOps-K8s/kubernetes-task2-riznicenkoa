@@ -41,7 +41,7 @@ jobs:
     - name: Build and start containers for a services
       run: |
         kubectl apply -R -f ./k8s
-        sleep 30
+        sleep 50
 
     - name: Debug Kubernetes Status
       if: always()
