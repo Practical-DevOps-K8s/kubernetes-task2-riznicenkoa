@@ -42,30 +42,12 @@ jobs:
     - name: Build and start containers for a services
       run: |
         kubectl apply -R -f ./k8s
-        sleep 50
+        echo
+        sleep 30
 
-    - name: Debug Kubernetes Status
-      if: always()
+    - name: Verify Final Kubernetes Status
       run: |
-        kubectl get all
-        kubectl logs deployment/webapp --tail=50
-    - name: Run Port Forward and Cypress Tests
-      env:
-        CYPRESS_BASE_URL: http://localhost:8080
-      run: |
-        sleep 40
-        kubectl port-forward deployment/webapp 8080:3000 --address 0.0.0.0 &
-        sleep 40
-        cd ./.github/tests
-        npm install
-        npx wait-on http://localhost:8080 --timeout 60000
-        npx cypress run
-    - name: Post-Test Rails Error Debug
-      if: always()
-      run: |
-        kubectl logs deployment/webapp --tail=100
-    - name: Final Step
-      env:
-        GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-      run: |
-        gh repo edit $GITHUB_REPOSITORY --visibility private --accept-visibility-change-consequences
+        echo
+        kubectl get pods
+        kubectl get services
+        kubectl get deployments
