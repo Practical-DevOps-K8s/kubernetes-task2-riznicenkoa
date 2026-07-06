@@ -53,8 +53,9 @@ jobs:
       env:
         CYPRESS_BASE_URL: http://localhost:8080
       run: |
+        sleep 40
         kubectl port-forward deployment/webapp 8080:3000 --address 0.0.0.0 &
-        
+        sleep 40
         cd ./.github/tests
         npm install
         npx wait-on http://localhost:8080 --timeout 60000
