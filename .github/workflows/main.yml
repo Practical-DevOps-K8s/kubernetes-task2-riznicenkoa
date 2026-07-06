@@ -23,7 +23,7 @@ jobs:
     - name: Create k8s Kind Cluster
       uses: helm/kind-action@v1
     - name: Build Docker Image
-      run: docker build -t webapp:latest .
+      run: docker build --no-cache -t webapp:latest .
 
     - name: Load Image into Kind
       run: kind load docker-image webapp:latest --name chart-testing
