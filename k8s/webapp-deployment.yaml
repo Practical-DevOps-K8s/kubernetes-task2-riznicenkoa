@@ -23,13 +23,14 @@ spec:
         - containerPort: 3000
         env:
         - name: DATABASE_HOST
-          value: postgres
-        - name: DATABASE_USER
-          value: postgres
-        - name: DATABASE_PASSWORD
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: postgres-secret
               key: postgres-password
-        - name: RAILS_ENV
-          value: production
+        - name: SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: secret-key-base
