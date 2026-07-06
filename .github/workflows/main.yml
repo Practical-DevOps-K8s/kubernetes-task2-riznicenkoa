@@ -42,10 +42,8 @@ jobs:
     - name: Build and start containers for a services
       run: |
         kubectl apply -R -f ./k8s
-        # Даем подам 30 секунд просто прийти в себя
         sleep 30
 
-    
     - name: Debug Kubernetes Status
       if: always()
       run: |
@@ -57,19 +55,20 @@ jobs:
       env:
         CYPRESS_BASE_URL: http://localhost:8080
       run: |
-        # Запускаем проброс портов
         kubectl port-forward service/webapp-service 8080:80 --address 0.0.0.0 &
-        
-        # Переходим к тестам
+
         cd ./.github/tests
         npm install
-        
-        # Ждем открытия порта
+
         npx wait-on http://localhost:8080 --timeout 60000
-        
-        # Запуск тестов
+
         npx cypress run
 
+    - name: Post-Test Rails Error Debug
+      if: always()
+      run: |
+        echo "=== СМОТРИМ ПОСЛЕДНИЕ ЛОГИ RAILS С ОШИБКОЙ 500 ==="
+        kubectl logs deployment/webapp --tail=100
     - name: Final Step
       env:
         GH_TOKEN: ${{ steps.generate-token.outputs.token }}
