@@ -47,34 +47,21 @@ jobs:
     - name: Debug Kubernetes Status
       if: always()
       run: |
-        echo "=== СМОТРИМ ВСЕ РЕСУРСЫ В КЛАСТЕРЕ ==="
         kubectl get all
-        echo "=== ЛОГИ ВЕБ-ПРИЛОЖЕНИЯ ==="
-        kubectl logs deployment/webapp --tail=50 || echo "Контейнер еще не запустился"
+        kubectl logs deployment/webapp --tail=50
     - name: Run Port Forward and Cypress Tests
       env:
         CYPRESS_BASE_URL: http://localhost:8080
       run: |
-        echo "=== СМОТРИМ СТАТУС ПОДОВ ПЕРЕД ТЕСТАМИ ==="
-        kubectl get pods
+        kubectl port-forward deployment/webapp 8080:3000 --address 0.0.0.0 &
         
-        echo "=== ЛОГИ RAILS ПЕРЕД ТЕСТАМИ ==="
-        kubectl logs deployment/webapp --tail=50 || echo "Не удалось прочитать логи"
-
-        kubectl port-forward service/webapp-service 8080:80 --address 0.0.0.0 &
-
-
         cd ./.github/tests
         npm install
-
         npx wait-on http://localhost:8080 --timeout 60000
-
         npx cypress run
-
     - name: Post-Test Rails Error Debug
       if: always()
       run: |
-        echo "=== СМОТРИМ ПОСЛЕДНИЕ ЛОГИ RAILS С ОШИБКОЙ 500 ==="
         kubectl logs deployment/webapp --tail=100
     - name: Final Step
       env:
