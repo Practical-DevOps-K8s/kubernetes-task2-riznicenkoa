@@ -54,7 +54,14 @@ jobs:
       env:
         CYPRESS_BASE_URL: http://localhost:8080
       run: |
+        echo "=== СМОТРИМ СТАТУС ПОДОВ ПЕРЕД ТЕСТАМИ ==="
+        kubectl get pods
+        
+        echo "=== ЛОГИ RAILS ПЕРЕД ТЕСТАМИ ==="
+        kubectl logs deployment/webapp --tail=50 || echo "Не удалось прочитать логи"
+
         kubectl port-forward service/webapp-service 8080:80 --address 0.0.0.0 &
+
 
         cd ./.github/tests
         npm install
